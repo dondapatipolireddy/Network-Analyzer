@@ -25,6 +25,29 @@ def save_packet(timestamp,src_ip,dest_ip,proto,port,size):
     except Exception as e:
         print("MongoDB Error:", e)
 
+
+
+def save_alert(time_stamp,alert_type,src_ip,severity,description):
+    alerts_collection.insert_one(
+        {
+            'timestamp': time_stamp,
+            'type': alert_type,
+            'src_ip': src_ip,
+            'severity': severity,
+            'description': description,
+            'created_at': datetime.datetime.now()
+        }
+    )
+
+
+def get_all_alerts():
+    alerts = list(alerts_collection.find(
+        {}, {'_id': 0}
+    ).sort('created_at', -1))
+    return alerts
+
+
+
 def get_top_ips():
     pipeline=[
         {'$group': {'_id': '$src_ip', 'count' : { '$sum': 1}}},
