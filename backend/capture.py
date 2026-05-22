@@ -1,5 +1,6 @@
 from scapy.all import sniff,TCP,IP,UDP,ARP,ICMP
 from database import init_db,save_packet,get_top_ips
+from detector import check_port_scan,syn_flood_scan,check_arp_spoof
 import datetime
 def get_protocol(packet):
     if TCP in packet:
@@ -22,12 +23,12 @@ def process_packet(packet):
         if ARP in packet:
             src = packet[ARP].psrc
             dst = packet[ARP].pdst
-
+            src_mac=packet[ARP].hwsrc
             time = datetime.datetime.now().strftime('%H:%M:%S')
             size = len(packet)
 
             print(f"time : {time} source: {src} Destination: {dst} Protocol: ARP port: 0 size : {size}")
-
+            check_arp_spoof(src_mac,src,time)
             save_packet(time, src, dst, "ARP", 0, size)
 
         elif IP in packet:
@@ -39,6 +40,13 @@ def process_packet(packet):
 
             time = datetime.datetime.now().strftime('%H:%M:%S')
             size = len(packet)
+
+            if TCP in packet:
+                flags = packet[TCP].flags
+                syn_flood_scan(src, str(flags), time)
+
+            if proto in ["TCP", "HTTP", "HTTPS", "SSH", "FTP"]:
+                check_port_scan(src, port, time)
 
             print(f"time : {time} source: {src} Destination: {dst} Protocol: {proto} port: {port} size : {size}")
 
