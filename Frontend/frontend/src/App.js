@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { fetchPackets, fetchAlerts, fetchStats } from "./api";
+import toast, { Toaster } from "react-hot-toast";
 import NavBar from "./components/NavBar";
 import Dashboard from "./pages/Dashboard";
 import Packets from "./pages/Packets";
 import Alerts from "./pages/Alerts";
 
 function App() {
-  const [packets, setPackets] = useState([]);
-  const [alerts,  setAlerts]  = useState([]);
-  const [stats,   setStats]   = useState({});
-  const [paused,  setPaused]  = useState(false);
-  const [page,    setPage]    = useState("dashboard");
+  const [packets,        setPackets]        = useState([]);
+  const [alerts,         setAlerts]         = useState([]);
+  const [stats,          setStats]          = useState({});
+  const [paused,         setPaused]         = useState(false);
+  const [page,           setPage]           = useState("dashboard");
+  const [prevAlertCount, setPrevAlertCount] = useState(0);
 
   useEffect(() => {
     if (paused) return;
@@ -21,9 +23,21 @@ function App() {
           fetchAlerts(),
           fetchStats()
         ]);
+
         setPackets(p.data);
-        setAlerts(a.data);
+        setAlerts(a.data);        // ✅ Bug 1 fixed
         setStats(s.data);
+
+        // Toast when new alert arrives
+        if (a.data.length > prevAlertCount && prevAlertCount > 0) {  // ✅ Bug 3 fixed
+          const newAlert = a.data[0];
+          toast.error(
+            `🚨 ${newAlert.type} detected from ${newAlert.src_ip}`,
+            { duration: 4000, position: "top-right" }
+          );
+        }
+        setPrevAlertCount(a.data.length);  // ✅ Bug 3 fixed
+
       } catch (err) {
         console.error(err);
       }
@@ -31,12 +45,13 @@ function App() {
     load();
     const interval = setInterval(load, 2000);
     return () => clearInterval(interval);
-  }, [paused]);
+  }, [paused, prevAlertCount]);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0f172a", color: "#e2e8f0", fontFamily: "monospace" }}>
-      <NavBar page={page} setPage={setPage} />
-      <div style={{ padding: "24px" }}>
+    <div style={{ minHeight:"100vh", background:"#0f172a", color:"#e2e8f0", fontFamily:"monospace" }}>
+      <Toaster />                                                    {/* ✅ Bug 4 fixed */}
+      <NavBar page={page} setPage={setPage} alerts={alerts} />      {/* ✅ Bug 2 fixed */}
+      <div style={{ padding:"24px" }}>
         {page === "dashboard" && <Dashboard packets={packets} alerts={alerts} stats={stats} />}
         {page === "packets"   && <Packets packets={packets} paused={paused} setPaused={setPaused} />}
         {page === "alerts"    && <Alerts alerts={alerts} />}

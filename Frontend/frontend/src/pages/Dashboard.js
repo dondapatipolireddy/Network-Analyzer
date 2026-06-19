@@ -1,4 +1,5 @@
 import StatCard from "../components/StatCard";
+import AIChat from "../components/AIChat";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
@@ -35,6 +36,7 @@ function Dashboard({ packets, alerts, stats }) {
   return (
     <div>
       {/* Stat Cards */}
+      <AIChat />
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"16px", marginBottom:"24px" }}>
         <StatCard title="Total Packets"  value={packets.length} color="#1d4ed8" />
         <StatCard title="Total Alerts"   value={alerts.length}  color="#dc2626" />
@@ -147,6 +149,7 @@ function Dashboard({ packets, alerts, stats }) {
           ))
         )}
       </div>
+      
     </div>
   );
 }
