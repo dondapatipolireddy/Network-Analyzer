@@ -5,16 +5,28 @@ function Alerts({ alerts }) {
   const medium = alerts.filter(a => a.severity === "MEDIUM").length;
   const low    = alerts.filter(a => a.severity === "LOW").length;
 
-  const exportCSV=()=>{
-    window.open("http://localhost:5000/api/export_alerts","_blanck");
-  }
+  const exportCSV = () => {
+    window.open("http://localhost:5000/export-alerts", "_blank");
+  };
 
-  const clearAlerts=async()=>{
-    await fetch("http://localhost:5000/api/clear_alerts", { method:"DELETE" });
-    window.location.reload();
-  }
+  const clearAlerts = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:5000/clear-alerts",
+        { method: "DELETE" }
+      );
+      const data = await res.json();
+      console.log("Cleared:", data);
+      window.location.reload();
+    } catch (err) {
+      console.error("Clear failed:", err);
+      alert("Failed to clear alerts. Check backend is running.");
+    }
+  };
+
   return (
     <div>
+      {/* Action buttons */}
       <div style={{ display:"flex", gap:"12px", marginBottom:"20px" }}>
         <button onClick={exportCSV} style={{
           padding:"9px 20px",
@@ -38,7 +50,8 @@ function Alerts({ alerts }) {
           {alerts.length} total alerts
         </span>
       </div>
-      {/* Alert summary cards */}
+
+      {/* Severity cards */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"12px", marginBottom:"20px" }}>
         <div style={{ background:"#450a0a", borderRadius:"10px", padding:"16px", textAlign:"center", border:"1px solid #dc2626" }}>
           <div style={{ fontSize:"28px", fontWeight:"bold", color:"#f87171" }}>{high}</div>

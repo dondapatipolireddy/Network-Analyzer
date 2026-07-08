@@ -6,16 +6,9 @@ import {
 } from "recharts";
 import { useState, useEffect } from "react";
 
-const protoColor = (proto) => ({
-  HTTP:"#2563eb", HTTPS:"#16a34a", DNS:"#d97706",
-  ARP:"#7c3aed", TCP:"#0891b2", UDP:"#c2410c",
-  ICMP:"#be185d", SSH:"#065f46", OTHER:"#6b7280"
-}[proto] || "#6b7280");
-
 const COLORS = ["#16a34a","#2563eb","#d97706","#7c3aed","#0891b2","#c2410c","#be185d","#6b7280"];
 
 function Dashboard({ packets, alerts, stats }) {
-
   const [timeData, setTimeData] = useState([]);
 
   useEffect(() => {
@@ -36,7 +29,6 @@ function Dashboard({ packets, alerts, stats }) {
   return (
     <div>
       {/* Stat Cards */}
-      <AIChat />
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"16px", marginBottom:"24px" }}>
         <StatCard title="Total Packets"  value={packets.length} color="#1d4ed8" />
         <StatCard title="Total Alerts"   value={alerts.length}  color="#dc2626" />
@@ -47,7 +39,7 @@ function Dashboard({ packets, alerts, stats }) {
       {/* Charts Row */}
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px", marginBottom:"16px" }}>
 
-        {/* Line Chart — packets over time */}
+        {/* Line Chart */}
         <div style={{ background:"#1e293b", borderRadius:"12px", padding:"20px" }}>
           <div style={{ fontSize:"11px", color:"#64748b", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"16px" }}>
             Packets Over Time
@@ -62,18 +54,12 @@ function Dashboard({ packets, alerts, stats }) {
                 labelStyle={{ color:"#94a3b8" }}
                 itemStyle={{ color:"#38bdf8" }}
               />
-              <Line
-                type="monotone"
-                dataKey="packets"
-                stroke="#38bdf8"
-                strokeWidth={2}
-                dot={false}
-              />
+              <Line type="monotone" dataKey="packets" stroke="#38bdf8" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Pie Chart — protocol distribution */}
+        {/* Pie Chart */}
         <div style={{ background:"#1e293b", borderRadius:"12px", padding:"20px" }}>
           <div style={{ fontSize:"11px", color:"#64748b", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"16px" }}>
             Protocol Distribution
@@ -85,15 +71,7 @@ function Dashboard({ packets, alerts, stats }) {
           ) : (
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={3}
-                  dataKey="value"
-                >
+                <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
                   {pieData.map((entry, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
@@ -102,9 +80,7 @@ function Dashboard({ packets, alerts, stats }) {
                   contentStyle={{ background:"#0f172a", border:"1px solid #334155", borderRadius:"8px" }}
                   itemStyle={{ color:"#94a3b8" }}
                 />
-                <Legend
-                  formatter={(value) => <span style={{ color:"#94a3b8", fontSize:"11px" }}>{value}</span>}
-                />
+                <Legend formatter={(value) => <span style={{ color:"#94a3b8", fontSize:"11px" }}>{value}</span>} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -131,8 +107,11 @@ function Dashboard({ packets, alerts, stats }) {
         )}
       </div>
 
+      {/* AI Chat */}
+      <AIChat />
+
       {/* Recent Alerts */}
-      <div style={{ background:"#1e293b", borderRadius:"12px", padding:"20px" }}>
+      <div style={{ background:"#1e293b", borderRadius:"12px", padding:"20px", marginTop:"16px" }}>
         <div style={{ fontSize:"11px", color:"#64748b", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:"14px" }}>
           Recent Alerts
         </div>
@@ -149,7 +128,6 @@ function Dashboard({ packets, alerts, stats }) {
           ))
         )}
       </div>
-      
     </div>
   );
 }
